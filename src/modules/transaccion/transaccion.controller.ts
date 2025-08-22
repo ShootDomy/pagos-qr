@@ -1,12 +1,14 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { TransaccionService } from './transaccion.service';
 import {
   generarCodigoQRDto,
   obtenerEstadoTransaccionDto,
   procesarTransaccionDto,
 } from './dto/transaccion.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('transaccion')
+@UseGuards(AuthGuard('jwt'))
 export class TransaccionController {
   constructor(private readonly _transaccionService: TransaccionService) {}
 
