@@ -9,6 +9,7 @@ import { CuentaModule } from './modules/cuenta/cuenta.module';
 import { TransaccionModule } from './modules/transaccion/transaccion.module';
 import { ComercianteModule } from './modules/comerciante/comerciante.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { FirebaseModule } from './modules/firebase/firebase.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
     CuentaModule,
     TransaccionModule,
     ComercianteModule,
+    FirebaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
