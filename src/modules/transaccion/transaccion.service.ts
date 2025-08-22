@@ -3,14 +3,17 @@ import { Transaccion } from './transaccion.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
-  generarCodigoQR,
-  obtenerEstadoTransaccion,
+  generarCodigoQRDto,
+  obtenerEstadoTransaccionDto,
+  procesarTransaccionDto,
 } from './dto/transaccion.dto';
 import { ITransaccionPayloadQr } from './interface/transaccion.interface';
 import { v4 as uuidv4 } from 'uuid';
 import * as QRCode from 'qrcode';
 import { plainToInstance } from 'class-transformer';
 import { obtenerEstadoTransac } from './dto/getTransaccion.fto';
+import { CuentaService } from '../cuenta/cuenta.service';
+import { utilResponse } from 'src/utils/utilResponse';
 // import * as crypto from 'crypto';
 
 @Injectable()
@@ -19,11 +22,12 @@ export class TransaccionService {
   constructor(
     @InjectRepository(Transaccion)
     private _transaccionRepository: Repository<Transaccion>,
+    private readonly _cuentaService: CuentaService,
   ) {
     this.QR_SECRET = process.env.QR_SIGNATURE_SECRET!;
   }
 
-  async generarQr(data: generarCodigoQR) {
+  async generarQr(data: generarCodigoQRDto) {
     try {
       if (data.traAmount <= 0) {
         throw new HttpException(
@@ -76,12 +80,13 @@ export class TransaccionService {
     }
   }
 
-  async refrescarEstadoTransaccion(data: obtenerEstadoTransaccion) {
+  async refrescarEstadoTransaccion(data: obtenerEstadoTransaccionDto) {
     try {
       const transaccion = await this._transaccionRepository.query(`
         SELECT tra_uuid, tra_estado 
         FROM transaccion 
         WHERE tra_uuid = '${data.traUuid}'  
+          AND deleted_at ISNULL
       `);
 
       return plainToInstance(obtenerEstadoTransac, transaccion[0]);
@@ -89,6 +94,71 @@ export class TransaccionService {
       if (error.driverError) {
         throw new HttpException(
           'Error al refrescar el estado de la transacción',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async procesarTransaccion(data: procesarTransaccionDto) {
+    try {
+      /**
+       * * Asignar usuario a transaccion
+       */
+
+      const transac: Partial<Transaccion> = {
+        traUuid: data.traUuid,
+        usuUuid: data.usuUuid,
+        traMetodoPago: data.traMetodoPago,
+      };
+
+      // // await this._transaccionRepository.update(data.traUuid, transac);
+
+      /**
+       * * Validaciones para el proceso de transaccion
+       */
+      // Validar monto mayor a 0
+      if (data.traAmount <= 0) {
+        throw new HttpException(
+          'El monto debe ser mayor que cero',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Validar saldo del usuario
+      const saldo = await this._cuentaService.validarSaldoUsuario(data.usuUuid);
+      if (saldo[0].cue_saldo < data.traAmount) {
+        const rechazar = {
+          ...transac,
+          traEstado: 'DECLINED',
+        };
+        await this._transaccionRepository.update(data.traUuid, rechazar);
+
+        throw new HttpException(
+          'El saldo del usuario es insuficiente',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const aceptar = {
+        ...transac,
+        traEstado: 'APPROVED',
+      };
+      await this._transaccionRepository.update(data.traUuid, aceptar);
+
+      const restarSaldo = Number(saldo[0].cue_saldo) - Number(data.traAmount);
+
+      await this._cuentaService.actualizarSaldoUsuario(
+        saldo[0].cue_uuid,
+        restarSaldo,
+      );
+
+      return new utilResponse().setSuccess();
+    } catch (error) {
+      if (error.driverError) {
+        throw new HttpException(
+          'Error al procesar la transacción',
           HttpStatus.BAD_REQUEST,
         );
       }
