@@ -1,5 +1,11 @@
 import { Expose } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsString, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 @Expose()
 export class registroUsuario {
@@ -19,6 +25,9 @@ export class registroUsuario {
   @IsString()
   @Min(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
   usuContrasena: string;
+
+  @IsOptional()
+  comUuid: string;
 }
 
 @Expose()

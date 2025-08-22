@@ -19,13 +19,13 @@ export class Transaccion {
   @Column({ type: 'numeric', precision: 15, scale: 4, name: 'tra_amount' })
   traAmount: number;
 
-  @Column({ type: 'varchar', length: 3, name: 'tra_currency' })
+  @Column({ type: 'character varying', length: 3, name: 'tra_currency' })
   traCurrency: string;
 
-  @Column({ type: 'varchar', length: 50, name: 'tra_metodo_pago' })
+  @Column({ type: 'character varying', length: 50, name: 'tra_metodo_pago' })
   traMetodoPago: string;
 
-  @Column({ type: 'varchar', length: 20, name: 'tra_estado' })
+  @Column({ type: 'character varying', length: 20, name: 'tra_estado' })
   traEstado: string;
 
   @Column({ type: 'uuid', name: 'usu_uuid' })

@@ -7,6 +7,7 @@ import Joi from 'joi';
 import { DatabaseModule } from './database/database.module';
 import { CuentaModule } from './modules/cuenta/cuenta.module';
 import { TransaccionModule } from './modules/transaccion/transaccion.module';
+import { ComercianteModule } from './modules/comerciante/comerciante.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { TransaccionModule } from './modules/transaccion/transaccion.module';
     UsuarioModule,
     CuentaModule,
     TransaccionModule,
+    ComercianteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

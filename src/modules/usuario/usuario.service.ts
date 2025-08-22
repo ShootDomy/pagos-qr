@@ -25,7 +25,7 @@ export class UsuarioService {
   async validarCorreo(usuCorreo: string) {
     try {
       const correoValido = await this._usuarioRepository.query(`
-        SELECT usu_uuid, usu_nombre, usu_apellido, usu_correo, usu_contrasena
+        SELECT usu_uuid, usu_nombre, usu_apellido, usu_correo, usu_contrasena, com_uuid
         FROM usuario 
         WHERE usu_correo = '${usuCorreo}'
           AND usu_activo IS TRUE
@@ -76,6 +76,7 @@ export class UsuarioService {
         usuCorreo: usuario.usuCorreo,
         usuContrasena: nuevaContra,
         usuActivo: true,
+        comUuid: usuario.comUuid,
       };
 
       const user = await this._usuarioRepository.save(nuevoUsuario);
@@ -118,6 +119,7 @@ export class UsuarioService {
         usuNombre: validarCorreo[0].usu_nombre,
         usuApellido: validarCorreo[0].usu_apellido,
         usuCorreo: validarCorreo[0].usu_correo,
+        comUuid: validarCorreo[0].com_uuid,
       };
 
       return {

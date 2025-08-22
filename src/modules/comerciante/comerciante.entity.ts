@@ -6,35 +6,18 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('usuario', { schema: 'public' })
-export class Usuario {
+@Entity('comerciante', { schema: 'public' })
+export class Comerciante {
   @Column({
     type: 'uuid',
     primary: true,
-    name: 'usu_uuid',
+    name: 'com_uuid',
     default: () => 'gen_random_uuid()',
   })
-  usuUuid: string;
-
-  @Column('character varying', { name: 'usu_nombre' })
-  usuNombre: string;
-
-  @Column('character varying', {
-    name: 'usu_apellido',
-  })
-  usuApellido: string;
-
-  @Column('character varying', { name: 'usu_correo', unique: true })
-  usuCorreo: string;
-
-  @Column('character varying', { name: 'usu_contrasena' })
-  usuContrasena: string;
-
-  @Column('boolean', { name: 'usu_activo', default: () => 'true' })
-  usuActivo: boolean;
-
-  @Column({ type: 'uuid', name: 'com_uuid' })
   comUuid: string;
+
+  @Column({ type: 'character varying', length: 100, name: 'com_nombre' })
+  comNombre: string;
 
   @CreateDateColumn({
     type: 'timestamp with time zone',
