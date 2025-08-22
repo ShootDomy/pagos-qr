@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { inicioSesionUsuario, registroUsuario } from './dto/usuario.dto';
 import { IUsuarioPayload } from './interface/usuario.interface';
+import { CuentaService } from '../cuenta/cuenta.service';
 
 @Injectable()
 export class UsuarioService {
@@ -18,6 +19,7 @@ export class UsuarioService {
     @InjectRepository(Usuario)
     private readonly _usuarioRepository: Repository<Usuario>,
     private readonly _jwtService: JwtService,
+    private readonly _cuentaService: CuentaService,
   ) {}
 
   async validarCorreo(usuCorreo: string) {
@@ -76,9 +78,12 @@ export class UsuarioService {
         usuActivo: true,
       };
 
-      await this._usuarioRepository.save(nuevoUsuario);
+      const user = await this._usuarioRepository.save(nuevoUsuario);
 
-      return nuevoUsuario;
+      // Generar cuenta con saldo aleatorio
+      await this._cuentaService.generarCuenta(user.usuUuid);
+
+      return user;
     } catch (error) {
       if (error.driverError) {
         throw new HttpException(
