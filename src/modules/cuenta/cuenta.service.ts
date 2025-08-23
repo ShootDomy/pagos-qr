@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cuenta } from './cuenta.entity';
 import { Repository } from 'typeorm';
-import { utilResponse } from 'src/utils/utilResponse';
+import { utilResponse } from '../../utils/utilResponse';
 
 @Injectable()
 export class CuentaService {

@@ -17,7 +17,7 @@ import {
   obtenerTransaccionesComercioResponse,
 } from './dto/getTransaccion.fto';
 import { CuentaService } from '../cuenta/cuenta.service';
-import { utilResponse } from 'src/utils/utilResponse';
+import { utilResponse } from '../../utils/utilResponse';
 // import * as crypto from 'crypto';
 
 @Injectable()
