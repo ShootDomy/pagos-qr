@@ -3,6 +3,7 @@ import { TransaccionService } from './transaccion.service';
 import {
   generarCodigoQRDto,
   obtenerEstadoTransaccionDto,
+  obtenerTransaccionesComercioDto,
   procesarTransaccionDto,
 } from './dto/transaccion.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,5 +26,12 @@ export class TransaccionController {
   @Post('procesar')
   async procesarTransaccion(@Body() data: procesarTransaccionDto) {
     return await this._transaccionService.procesarTransaccion(data);
+  }
+
+  @Get('comercio')
+  async obtenerTransaccionesComercio(
+    @Query() data: obtenerTransaccionesComercioDto,
+  ) {
+    return await this._transaccionService.obtenerTransaccionesComercio(data);
   }
 }

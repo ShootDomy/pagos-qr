@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 @Expose()
 export class generarCodigoQRDto {
@@ -12,7 +12,7 @@ export class generarCodigoQRDto {
 
 @Expose()
 export class obtenerEstadoTransaccionDto {
-  @IsNotEmpty({ message: 'El UUID de la transacción es requerido' })
+  @IsOptional()
   traUuid: string;
 }
 
@@ -29,4 +29,10 @@ export class procesarTransaccionDto {
 
   @IsNotEmpty({ message: 'El monto es requerido' })
   traAmount: number;
+}
+
+@Expose()
+export class obtenerTransaccionesComercioDto {
+  @IsNotEmpty({ message: 'El UUID del comercio es requerido' })
+  comUuid: string;
 }

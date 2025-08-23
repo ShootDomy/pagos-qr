@@ -5,13 +5,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   generarCodigoQRDto,
   obtenerEstadoTransaccionDto,
+  obtenerTransaccionesComercioDto,
   procesarTransaccionDto,
 } from './dto/transaccion.dto';
 import { ITransaccionPayloadQr } from './interface/transaccion.interface';
 import { v4 as uuidv4 } from 'uuid';
 import * as QRCode from 'qrcode';
 import { plainToInstance } from 'class-transformer';
-import { obtenerEstadoTransac } from './dto/getTransaccion.fto';
+import {
+  obtenerEstadoTransac,
+  obtenerTransaccionesComercioResponse,
+} from './dto/getTransaccion.fto';
 import { CuentaService } from '../cuenta/cuenta.service';
 import { utilResponse } from 'src/utils/utilResponse';
 // import * as crypto from 'crypto';
@@ -68,7 +72,7 @@ export class TransaccionService {
       };
       await this._transaccionRepository.save(transaccion);
 
-      return { qr: qrBase64 };
+      return { traUuid: payloadQr.traUuid, qr: qrBase64 };
     } catch (error) {
       if (error.driverError) {
         throw new HttpException(
@@ -82,8 +86,18 @@ export class TransaccionService {
 
   async refrescarEstadoTransaccion(data: obtenerEstadoTransaccionDto) {
     try {
+      if (!data.traUuid) {
+        return { traUuid: null, traEstado: 'QR NO GENERADO' };
+      }
+
       const transaccion = await this._transaccionRepository.query(`
-        SELECT tra_uuid, tra_estado 
+        SELECT tra_uuid, 
+          CASE
+            WHEN tra_estado = 'PENDING' THEN 'PENDIENTE'
+            WHEN tra_estado = 'APPROVED' THEN 'APROBADO'
+            WHEN tra_estado = 'DECLINED' THEN 'DECLINADO'
+            ELSE 'QR NO GENERADO'
+          END tra_estado 
         FROM transaccion 
         WHERE tra_uuid = '${data.traUuid}'  
           AND deleted_at ISNULL
@@ -159,6 +173,37 @@ export class TransaccionService {
       if (error.driverError) {
         throw new HttpException(
           'Error al procesar la transacción',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async obtenerTransaccionesComercio(data: obtenerTransaccionesComercioDto) {
+    try {
+      const transaccion = await this._transaccionRepository.query(`
+        SELECT usu.usu_uuid, UPPER(TRIM(TRIM(COALESCE(usu_apellido, '')) || ' ' || TRIM(COALESCE(usu_nombre, '')))) cliente,
+          tra.tra_uuid, tra.tra_amount, tra.tra_currency, tra.tra_metodo_pago,
+          CASE
+            WHEN tra_estado = 'PENDING' THEN 'PENDIENTE'
+            WHEN tra_estado = 'APPROVED' THEN 'APROBADO'
+            WHEN tra_estado = 'DECLINED' THEN 'DECLINADO'
+            ELSE ''
+          END tra_estado,
+          TO_CHAR(tra.created_at, 'YYYY-MM-DD') fecha_creacion
+        FROM transaccion tra
+        INNER JOIN usuario usu ON usu.usu_uuid = tra.usu_uuid
+        WHERE tra.deleted_at ISNULL 
+          AND tra.com_uuid = '${data.comUuid}'
+          AND tra.usu_uuid IS NOT NULL;
+      `);
+
+      return plainToInstance(obtenerTransaccionesComercioResponse, transaccion);
+    } catch (error) {
+      if (error.driverError) {
+        throw new HttpException(
+          'Error al obtener las transacciones del comercio',
           HttpStatus.BAD_REQUEST,
         );
       }
