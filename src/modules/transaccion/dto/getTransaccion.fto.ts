@@ -35,4 +35,7 @@ export class obtenerTransaccionesComercioResponse {
 
   @Expose({ name: 'fecha_creacion' })
   fechaCreacion: string;
+
+  @Expose({ name: 'tra_qr' })
+  traQr: string;
 }

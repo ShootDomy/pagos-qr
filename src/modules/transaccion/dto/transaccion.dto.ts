@@ -35,4 +35,10 @@ export class procesarTransaccionDto {
 export class obtenerTransaccionesComercioDto {
   @IsNotEmpty({ message: 'El UUID del comercio es requerido' })
   comUuid: string;
+
+  @IsOptional()
+  cliente: string;
+
+  @IsOptional()
+  estado: string;
 }

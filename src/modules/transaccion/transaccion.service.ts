@@ -68,6 +68,7 @@ export class TransaccionService {
        */
       const transaccion: Partial<Transaccion> = {
         ...payloadQr,
+        traQr: qrBase64,
         traEstado: 'PENDING',
       };
       await this._transaccionRepository.save(transaccion);
@@ -117,6 +118,23 @@ export class TransaccionService {
 
   async procesarTransaccion(data: procesarTransaccionDto) {
     try {
+      // BUSCAR TRANSACCION
+      const transaccion = await this.obtenerTransaccion(data.traUuid);
+
+      if (!transaccion) {
+        throw new HttpException(
+          'Transacción no encontrada',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (transaccion.tra_estado !== 'PENDING') {
+        throw new HttpException(
+          'Transacción no está en estado pendiente',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       /**
        * * Asignar usuario a transaccion
        */
@@ -180,8 +198,44 @@ export class TransaccionService {
     }
   }
 
+  async obtenerTransaccion(traUuid: string) {
+    try {
+      const transaccion = await this._transaccionRepository.query(`
+        SELECT tra_uuid, tra_amount, tra_currency, tra_metodo_pago, tra_estado, tra_qr
+        FROM transaccion
+        WHERE tra_uuid = '${traUuid}'
+          AND deleted_at ISNULL
+      `);
+
+      return transaccion[0];
+    } catch (error) {
+      if (error.driverError) {
+        throw new HttpException(
+          'Error al procesar la transacción',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      throw new HttpException(error, HttpStatus.BAD_REQUEST);
+    }
+  }
+
   async obtenerTransaccionesComercio(data: obtenerTransaccionesComercioDto) {
     try {
+      let condicion = '';
+      if (data.cliente) {
+        condicion += ` AND UPPER(TRIM(TRIM(COALESCE(usu_apellido, '')) || ' ' || TRIM(COALESCE(usu_nombre, '')))) LIKE UPPER('%${data.cliente}%')`;
+      }
+
+      if (data.estado && data.estado !== 'TODOS') {
+        let est = '';
+
+        if (data.estado === 'PENDIENTE') est = 'PENDING';
+        if (data.estado === 'APROBADO') est = 'APPROVED';
+        if (data.estado === 'DECLINADO') est = 'DECLINED';
+
+        condicion += ` AND tra.tra_estado = '${est}'`;
+      }
+
       const transaccion = await this._transaccionRepository.query(`
         SELECT usu.usu_uuid, UPPER(TRIM(TRIM(COALESCE(usu_apellido, '')) || ' ' || TRIM(COALESCE(usu_nombre, '')))) cliente,
           tra.tra_uuid, tra.tra_amount, tra.tra_currency, tra.tra_metodo_pago,
@@ -190,13 +244,15 @@ export class TransaccionService {
             WHEN tra_estado = 'APPROVED' THEN 'APROBADO'
             WHEN tra_estado = 'DECLINED' THEN 'DECLINADO'
             ELSE ''
-          END tra_estado,
+          END tra_estado, tra.tra_qr,
           TO_CHAR(tra.created_at, 'YYYY-MM-DD') fecha_creacion
         FROM transaccion tra
         INNER JOIN usuario usu ON usu.usu_uuid = tra.usu_uuid
         WHERE tra.deleted_at ISNULL 
           AND tra.com_uuid = '${data.comUuid}'
-          AND tra.usu_uuid IS NOT NULL;
+          AND tra.usu_uuid IS NOT NULL
+          ${condicion}
+        ORDER BY tra.created_at DESC;
       `);
 
       return plainToInstance(obtenerTransaccionesComercioResponse, transaccion);

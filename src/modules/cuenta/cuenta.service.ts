@@ -77,4 +77,25 @@ export class CuentaService {
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async obtenerCuentaXUsuario(usuUuid: string) {
+    try {
+      const saldo = await this.cuentaRepository.query(`
+        SELECT cue_uuid, cue_num_cuenta, cue_saldo, usu_uuid
+        FROM cuenta 
+        WHERE usu_uuid = '${usuUuid}'
+          AND deleted_at ISNULL  
+      `);
+
+      return saldo;
+    } catch (error) {
+      if (error.driverError) {
+        throw new HttpException(
+          'Error al validar el saldo del usuario',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

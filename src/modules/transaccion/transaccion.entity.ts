@@ -34,6 +34,9 @@ export class Transaccion {
   @Column({ type: 'uuid', name: 'com_uuid' })
   comUuid: string;
 
+  @Column({ type: 'character varying', name: 'tra_qr' })
+  traQr: string;
+
   @CreateDateColumn({
     type: 'timestamp with time zone',
     name: 'created_at',
