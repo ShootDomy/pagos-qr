@@ -7,6 +7,9 @@ export class obtenerEstadoTransac {
 
   @Expose({ name: 'tra_estado' })
   traEstado: string;
+
+  @Expose({ name: 'tra_numero' })
+  traNumero: number;
 }
 
 @Exclude()

@@ -18,7 +18,7 @@ export class FirebaseService {
 
   async enviarNotificacionPush(data: enviarNotificacionDto) {
     const notificacion = {
-      notification: { title: data.title, message: data.message },
+      notification: { title: data.title, body: data.message },
       data: data.data || {},
       token: data.token,
     };
@@ -27,6 +27,7 @@ export class FirebaseService {
       await admin.messaging().send(notificacion);
       return new utilResponse().setSuccess();
     } catch (error) {
+      console.log('Error al enviar notificación push:', error);
       return { success: false, error };
     }
   }

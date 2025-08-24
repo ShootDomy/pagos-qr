@@ -6,7 +6,7 @@ import { enviarNotificacionDto } from './dto/firebase.dto';
 export class FirebaseController {
   constructor(private readonly _firebaseService: FirebaseService) {}
 
-  @Post('send-notification')
+  @Post('enviar-notificacion')
   async enviarNotificacionPush(@Body() data: enviarNotificacionDto) {
     return await this._firebaseService.enviarNotificacionPush(data);
   }
