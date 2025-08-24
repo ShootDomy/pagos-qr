@@ -25,10 +25,14 @@ export class UsuarioService {
   async validarCorreo(usuCorreo: string) {
     try {
       const correoValido = await this._usuarioRepository.query(`
-        SELECT usu_uuid, usu_nombre, usu_apellido, usu_correo, usu_contrasena, com_uuid
-        FROM usuario 
-        WHERE usu_correo = '${usuCorreo}'
-          AND usu_activo IS TRUE
+        SELECT usu.usu_uuid, usu.usu_nombre, usu.usu_apellido, 
+          usu.usu_correo, usu.usu_contrasena, com.com_uuid, 
+          com.com_nombre
+        FROM usuario usu
+        LEFT JOIN comerciante com ON com.com_uuid = usu.com_uuid
+        WHERE usu.usu_correo = '${usuCorreo}'
+          AND usu.usu_activo IS TRUE
+          AND usu.deleted_at IS NULL
       `);
 
       return correoValido;
@@ -120,6 +124,7 @@ export class UsuarioService {
         usuApellido: validarCorreo[0].usu_apellido,
         usuCorreo: validarCorreo[0].usu_correo,
         comUuid: validarCorreo[0].com_uuid,
+        comNombre: validarCorreo[0].com_nombre,
       };
 
       return {

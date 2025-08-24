@@ -4,4 +4,5 @@ export interface IUsuarioPayload {
   usuApellido: string;
   usuCorreo: string;
   comUuid: string;
+  comNombre: string;
 }
