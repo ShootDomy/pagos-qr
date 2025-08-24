@@ -4,11 +4,16 @@ import { TransaccionController } from './transaccion.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaccion } from './transaccion.entity';
 import { CuentaModule } from '../cuenta/cuenta.module';
+import { FirebaseModule } from '../firebase/firebase.module';
 
 @Module({
   controllers: [TransaccionController],
   providers: [TransaccionService],
   exports: [TransaccionService],
-  imports: [TypeOrmModule.forFeature([Transaccion]), CuentaModule],
+  imports: [
+    TypeOrmModule.forFeature([Transaccion]),
+    CuentaModule,
+    FirebaseModule,
+  ],
 })
 export class TransaccionModule {}

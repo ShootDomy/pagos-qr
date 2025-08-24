@@ -37,6 +37,9 @@ export class Transaccion {
   @Column({ type: 'character varying', name: 'tra_qr' })
   traQr: string;
 
+  @Column({ type: 'numeric', precision: 10, scale: 0, name: 'tra_numero' })
+  traNumero: number;
+
   @CreateDateColumn({
     type: 'timestamp with time zone',
     name: 'created_at',

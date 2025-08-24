@@ -4,6 +4,7 @@ import { TransaccionService } from './transaccion.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Transaccion } from './transaccion.entity';
 import { CuentaService } from '../cuenta/cuenta.service';
+import { FirebaseService } from '../firebase/firebase.service';
 
 describe('TransaccionController', () => {
   let controller: TransaccionController;
@@ -21,11 +22,14 @@ describe('TransaccionController', () => {
             update: jest.fn(),
             find: jest.fn(),
             findOne: jest.fn(),
-            // otros métodos de Repository si son necesarios
           },
         },
         {
           provide: CuentaService,
+          useValue: {},
+        },
+        {
+          provide: FirebaseService,
           useValue: {},
         },
       ],

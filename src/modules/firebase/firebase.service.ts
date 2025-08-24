@@ -1,6 +1,8 @@
 import * as admin from 'firebase-admin';
 import { Injectable } from '@nestjs/common';
 import serviceAccount from '../../../pagos-qr-2da58-firebase-adminsdk-fbsvc-f1d48ceaad.json';
+import { utilResponse } from '../../utils/utilResponse';
+import { enviarNotificacionDto } from './dto/firebase.dto';
 
 @Injectable()
 export class FirebaseService {
@@ -14,20 +16,16 @@ export class FirebaseService {
     }
   }
 
-  async sendPushNotification(
-    token: string,
-    title: string,
-    body: string,
-    data?: any,
-  ) {
-    const message = {
-      notification: { title, body },
-      data: data || {},
-      token,
+  async enviarNotificacionPush(data: enviarNotificacionDto) {
+    const notificacion = {
+      notification: { title: data.title, message: data.message },
+      data: data.data || {},
+      token: data.token,
     };
     try {
-      const response = await admin.messaging().send(message);
-      return { success: true, response };
+      // const response =
+      await admin.messaging().send(notificacion);
+      return new utilResponse().setSuccess();
     } catch (error) {
       return { success: false, error };
     }

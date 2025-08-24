@@ -18,6 +18,8 @@ import {
 } from './dto/getTransaccion.fto';
 import { CuentaService } from '../cuenta/cuenta.service';
 import { utilResponse } from '../../utils/utilResponse';
+import { FirebaseService } from '../firebase/firebase.service';
+import { enviarNotificacionDto } from '../firebase/dto/firebase.dto';
 // import * as crypto from 'crypto';
 
 @Injectable()
@@ -27,6 +29,7 @@ export class TransaccionService {
     @InjectRepository(Transaccion)
     private _transaccionRepository: Repository<Transaccion>,
     private readonly _cuentaService: CuentaService,
+    private readonly _firebaseService: FirebaseService,
   ) {
     this.QR_SECRET = process.env.QR_SIGNATURE_SECRET!;
   }
@@ -66,10 +69,13 @@ export class TransaccionService {
       /**
        * * Guardar transacción en base de datos
        */
+      // Generar numero de transaccion
+      const traNumero = Math.floor(10000 + Math.random() * 90000);
       const transaccion: Partial<Transaccion> = {
         ...payloadQr,
         traQr: qrBase64,
         traEstado: 'PENDING',
+        traNumero: traNumero,
       };
       await this._transaccionRepository.save(transaccion);
 
@@ -122,6 +128,15 @@ export class TransaccionService {
       const transaccion = await this.obtenerTransaccion(data.traUuid);
 
       if (!transaccion) {
+        if (data.tokenUsuario) {
+          const notificacion: enviarNotificacionDto = {
+            token: data.tokenUsuario,
+            title: 'Transacción no procesada',
+            message: `No se ha encontrado la transacción`,
+          };
+          await this._firebaseService.enviarNotificacionPush(notificacion);
+        }
+
         throw new HttpException(
           'Transacción no encontrada',
           HttpStatus.NOT_FOUND,
@@ -129,6 +144,15 @@ export class TransaccionService {
       }
 
       if (transaccion.tra_estado !== 'PENDING') {
+        if (data.tokenUsuario) {
+          const notificacion: enviarNotificacionDto = {
+            token: data.tokenUsuario,
+            title: 'Transacción no procesada',
+            message: `La transacción esta en estado ${transaccion.tra_estado}, ya no se puede volver a procesar`,
+          };
+          await this._firebaseService.enviarNotificacionPush(notificacion);
+        }
+
         throw new HttpException(
           'Transacción no está en estado pendiente',
           HttpStatus.BAD_REQUEST,
@@ -152,6 +176,15 @@ export class TransaccionService {
        */
       // Validar monto mayor a 0
       if (data.traAmount <= 0) {
+        if (data.tokenUsuario) {
+          const notificacion: enviarNotificacionDto = {
+            token: data.tokenUsuario,
+            title: 'Transacción no procesada',
+            message: `El monto a procesar es inválido.`,
+          };
+          await this._firebaseService.enviarNotificacionPush(notificacion);
+        }
+
         throw new HttpException(
           'El monto debe ser mayor que cero',
           HttpStatus.BAD_REQUEST,
@@ -166,6 +199,15 @@ export class TransaccionService {
           traEstado: 'DECLINED',
         };
         await this._transaccionRepository.update(data.traUuid, rechazar);
+
+        if (data.tokenUsuario) {
+          const notificacion: enviarNotificacionDto = {
+            token: data.tokenUsuario,
+            title: 'Transacción no procesada',
+            message: `No tiene saldo suficiente para realizar la transacción`,
+          };
+          await this._firebaseService.enviarNotificacionPush(notificacion);
+        }
 
         throw new HttpException(
           'El saldo del usuario es insuficiente',
@@ -186,6 +228,15 @@ export class TransaccionService {
         restarSaldo,
       );
 
+      if (data.tokenUsuario) {
+        const notificacion: enviarNotificacionDto = {
+          token: data.tokenUsuario,
+          title: 'Transacción exitosa',
+          message: `La transacción ha sido procesada exitosamente`,
+        };
+        await this._firebaseService.enviarNotificacionPush(notificacion);
+      }
+
       return new utilResponse().setSuccess();
     } catch (error) {
       if (error.driverError) {
@@ -201,7 +252,7 @@ export class TransaccionService {
   async obtenerTransaccion(traUuid: string) {
     try {
       const transaccion = await this._transaccionRepository.query(`
-        SELECT tra_uuid, tra_amount, tra_currency, tra_metodo_pago, tra_estado, tra_qr
+        SELECT tra_uuid, tra_amount, tra_currency, tra_metodo_pago, tra_estado, tra_qr, tra_numero
         FROM transaccion
         WHERE tra_uuid = '${traUuid}'
           AND deleted_at ISNULL
@@ -245,7 +296,7 @@ export class TransaccionService {
             WHEN tra_estado = 'DECLINED' THEN 'DECLINADO'
             ELSE ''
           END tra_estado, tra.tra_qr,
-          TO_CHAR(tra.created_at, 'YYYY-MM-DD') fecha_creacion
+          TO_CHAR(tra.created_at, 'YYYY-MM-DD') fecha_creacion, tra.tra_numero
         FROM transaccion tra
         INNER JOIN usuario usu ON usu.usu_uuid = tra.usu_uuid
         WHERE tra.deleted_at ISNULL 

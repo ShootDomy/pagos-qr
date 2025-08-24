@@ -29,6 +29,9 @@ export class procesarTransaccionDto {
 
   @IsNotEmpty({ message: 'El monto es requerido' })
   traAmount: number;
+
+  @IsOptional()
+  tokenUsuario: string;
 }
 
 @Expose()

@@ -38,4 +38,7 @@ export class obtenerTransaccionesComercioResponse {
 
   @Expose({ name: 'tra_qr' })
   traQr: string;
+
+  @Expose({ name: 'tra_numero' })
+  traNumero: number;
 }
