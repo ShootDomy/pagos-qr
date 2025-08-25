@@ -277,7 +277,7 @@ export class TransaccionService {
     try {
       let condicion = '';
       if (data.cliente) {
-        condicion += ` AND UPPER(TRIM(TRIM(COALESCE(usu_apellido, '')) || ' ' || TRIM(COALESCE(usu_nombre, '')))) LIKE UPPER('%${data.cliente}%')`;
+        condicion += ` AND TRIM(UPPER(TRIM(TRIM(COALESCE(usu_apellido, '')) || ' ' || TRIM(COALESCE(usu_nombre, '')))) || tra_numero) LIKE UPPER('%${data.cliente}%')`;
       }
 
       if (data.estado && data.estado !== 'TODOS') {

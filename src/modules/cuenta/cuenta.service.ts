@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Cuenta } from './cuenta.entity';
 import { Repository } from 'typeorm';
 import { utilResponse } from '../../utils/utilResponse';
+import { obtenerCuentaUsuarioDto } from './dto/cuenta.dto';
+import { plainToInstance } from 'class-transformer';
+import { obtenerCuentaUsuarioResponse } from './dto/getCuenta.dto';
 
 @Injectable()
 export class CuentaService {
   constructor(
     @InjectRepository(Cuenta)
-    private cuentaRepository: Repository<Cuenta>,
+    private _cuentaRepository: Repository<Cuenta>,
   ) {}
 
   async generarCuenta(usuUuid: string) {
@@ -23,7 +26,7 @@ export class CuentaService {
         cueSaldo: saldo,
       };
 
-      const cuenta = await this.cuentaRepository.save(nuevaCuenta);
+      const cuenta = await this._cuentaRepository.save(nuevaCuenta);
       return cuenta;
     } catch (error) {
       if (error.driverError) {
@@ -38,7 +41,7 @@ export class CuentaService {
 
   async validarSaldoUsuario(usuUuid: string) {
     try {
-      const saldo = await this.cuentaRepository.query(`
+      const saldo = await this._cuentaRepository.query(`
         SELECT cue_uuid, cue_saldo
         FROM cuenta 
         WHERE usu_uuid = '${usuUuid}'
@@ -64,7 +67,7 @@ export class CuentaService {
         cueSaldo: saldo,
       };
 
-      await this.cuentaRepository.update(cueUuid, cuenta);
+      await this._cuentaRepository.update(cueUuid, cuenta);
 
       return new utilResponse().setSuccess();
     } catch (error) {
@@ -78,16 +81,16 @@ export class CuentaService {
     }
   }
 
-  async obtenerCuentaXUsuario(usuUuid: string) {
+  async obtenerCuentaXUsuario(data: obtenerCuentaUsuarioDto) {
     try {
-      const saldo = await this.cuentaRepository.query(`
+      const saldo = await this._cuentaRepository.query(`
         SELECT cue_uuid, cue_num_cuenta, cue_saldo, usu_uuid
         FROM cuenta 
-        WHERE usu_uuid = '${usuUuid}'
+        WHERE usu_uuid = '${data.usuUuid}'
           AND deleted_at ISNULL  
       `);
 
-      return saldo;
+      return plainToInstance(obtenerCuentaUsuarioResponse, saldo[0]);
     } catch (error) {
       if (error.driverError) {
         throw new HttpException(
