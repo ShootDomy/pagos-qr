@@ -25,9 +25,9 @@ export class FirebaseService {
     try {
       // const response =
       await admin.messaging().send(notificacion);
+
       return new utilResponse().setSuccess();
     } catch (error) {
-      console.log('Error al enviar notificación push:', error);
       return { success: false, error };
     }
   }

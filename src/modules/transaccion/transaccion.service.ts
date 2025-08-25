@@ -129,17 +129,13 @@ export class TransaccionService {
 
       if (!transaccion) {
         if (data.tokenUsuario) {
-          console.log('ENVIO NOTIFICACION NO ENCONTRO LA NOTIFICACION');
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
             title: 'Transacción no procesada',
             message: `No se ha encontrado la transacción`,
           };
-          console.log('notificacion', notificacion);
           await this._firebaseService.enviarNotificacionPush(notificacion);
         }
-
-        console.log('FIN ENVIO NOTIFICACION NO ENCONTRO LA NOTIFICACION');
 
         throw new HttpException(
           'Transacción no encontrada',
@@ -154,7 +150,7 @@ export class TransaccionService {
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
             title: 'Transacción no procesada',
-            message: `La transacción esta en estado ${estado}, ya no se puede volver a procesar`,
+            message: `La transacción esta en estado ${estado} ya no se puede volver a procesar`,
           };
           await this._firebaseService.enviarNotificacionPush(notificacion);
         }
@@ -212,6 +208,7 @@ export class TransaccionService {
             title: 'Transacción no procesada',
             message: `No tiene saldo suficiente para realizar la transacción`,
           };
+
           await this._firebaseService.enviarNotificacionPush(notificacion);
         }
 
