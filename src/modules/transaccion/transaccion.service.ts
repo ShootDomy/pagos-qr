@@ -20,6 +20,7 @@ import { CuentaService } from '../cuenta/cuenta.service';
 import { utilResponse } from '../../utils/utilResponse';
 import { FirebaseService } from '../firebase/firebase.service';
 import { enviarNotificacionDto } from '../firebase/dto/firebase.dto';
+import { ComercianteService } from '../comerciante/comerciante.service';
 // import * as crypto from 'crypto';
 
 @Injectable()
@@ -30,6 +31,7 @@ export class TransaccionService {
     private _transaccionRepository: Repository<Transaccion>,
     private readonly _cuentaService: CuentaService,
     private readonly _firebaseService: FirebaseService,
+    private readonly _comercianteService: ComercianteService,
   ) {
     this.QR_SECRET = process.env.QR_SIGNATURE_SECRET!;
   }
@@ -131,7 +133,7 @@ export class TransaccionService {
         if (data.tokenUsuario) {
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
-            title: 'Transacción no procesada',
+            title: `Transacción número ${transaccion.tra_numero} no procesada`,
             message: `No se ha encontrado la transacción`,
           };
           await this._firebaseService.enviarNotificacionPush(notificacion);
@@ -143,13 +145,34 @@ export class TransaccionService {
         );
       }
 
+      const comerciante =
+        await this._comercianteService.obtenerComerciantesUuid(
+          transaccion.com_uuid,
+        );
+
+      if (!comerciante) {
+        if (data.tokenUsuario) {
+          const notificacion: enviarNotificacionDto = {
+            token: data.tokenUsuario,
+            title: `Transacción número ${transaccion.tra_numero} no procesada`,
+            message: `No se ha encontrado el comerciante`,
+          };
+          await this._firebaseService.enviarNotificacionPush(notificacion);
+        }
+
+        throw new HttpException(
+          'Comerciante no encontrado',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
       if (transaccion.tra_estado !== 'PENDING') {
         if (data.tokenUsuario) {
           const estado =
             transaccion.tra_estado == 'APPROVED' ? 'APROBADO' : 'DECLINADO';
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
-            title: 'Transacción no procesada',
+            title: `Transacción número ${transaccion.tra_numero} no procesada`,
             message: `La transacción esta en estado ${estado} ya no se puede volver a procesar`,
           };
           await this._firebaseService.enviarNotificacionPush(notificacion);
@@ -181,7 +204,7 @@ export class TransaccionService {
         if (data.tokenUsuario) {
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
-            title: 'Transacción no procesada',
+            title: `Transacción número ${transaccion.tra_numero} no procesada`,
             message: `El monto a procesar es inválido.`,
           };
           await this._firebaseService.enviarNotificacionPush(notificacion);
@@ -205,7 +228,7 @@ export class TransaccionService {
         if (data.tokenUsuario) {
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
-            title: 'Transacción no procesada',
+            title: `Transacción número ${transaccion.tra_numero} no procesada`,
             message: `No tiene saldo suficiente para realizar la transacción`,
           };
 
@@ -214,6 +237,23 @@ export class TransaccionService {
 
         throw new HttpException(
           'El saldo del usuario es insuficiente',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // validacion valores iguales
+      if (data.traAmount != transaccion.tra_amount) {
+        if (data.tokenUsuario) {
+          const notificacion: enviarNotificacionDto = {
+            token: data.tokenUsuario,
+            title: `Transacción número ${transaccion.tra_numero} no procesada`,
+            message: `El monto a procesar es inválido.`,
+          };
+          await this._firebaseService.enviarNotificacionPush(notificacion);
+        }
+
+        throw new HttpException(
+          'El monto a procesar es inválido',
           HttpStatus.BAD_REQUEST,
         );
       }

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Transaccion } from './transaccion.entity';
 import { CuentaModule } from '../cuenta/cuenta.module';
 import { FirebaseModule } from '../firebase/firebase.module';
+import { ComercianteModule } from '../comerciante/comerciante.module';
 
 @Module({
   controllers: [TransaccionController],
@@ -14,6 +15,7 @@ import { FirebaseModule } from '../firebase/firebase.module';
     TypeOrmModule.forFeature([Transaccion]),
     CuentaModule,
     FirebaseModule,
+    ComercianteModule,
   ],
 })
 export class TransaccionModule {}

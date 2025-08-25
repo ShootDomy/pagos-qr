@@ -27,4 +27,23 @@ export class ComercianteService {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async obtenerComerciantesUuid(comUuid: string) {
+    try {
+      const comerciante = await this._comercianteRepository
+        .createQueryBuilder('com')
+        .select(['com.comUuid', 'com.comNombre'])
+        .where('com.comUuid = :comUuid', { comUuid })
+        .getOne();
+      return comerciante;
+    } catch (error) {
+      if (error.driverError) {
+        throw new HttpException(
+          'Error al obtener los comerciantes',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

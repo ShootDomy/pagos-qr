@@ -5,6 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Cuenta } from '../cuenta/cuenta.entity';
 import { CuentaService } from '../cuenta/cuenta.service';
 import { FirebaseService } from '../firebase/firebase.service';
+import { ComercianteService } from '../comerciante/comerciante.service';
 
 describe('TransaccionService', () => {
   let service: TransaccionService;
@@ -39,6 +40,10 @@ describe('TransaccionService', () => {
         },
         {
           provide: FirebaseService,
+          useValue: {},
+        },
+        {
+          provide: ComercianteService,
           useValue: {},
         },
       ],
