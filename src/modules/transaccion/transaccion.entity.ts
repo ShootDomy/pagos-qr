@@ -3,8 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Usuario } from '../usuario/usuario.entity';
+import { Comerciante } from '../comerciante/comerciante.entity';
 
 @Entity('transaccion', { schema: 'public' })
 export class Transaccion {
@@ -22,13 +25,18 @@ export class Transaccion {
   @Column({ type: 'character varying', length: 3, name: 'tra_currency' })
   traCurrency: string;
 
-  @Column({ type: 'character varying', length: 50, name: 'tra_metodo_pago' })
+  @Column({
+    type: 'character varying',
+    length: 50,
+    name: 'tra_metodo_pago',
+    nullable: true,
+  })
   traMetodoPago: string;
 
   @Column({ type: 'character varying', length: 20, name: 'tra_estado' })
   traEstado: string;
 
-  @Column({ type: 'uuid', name: 'usu_uuid' })
+  @Column({ type: 'uuid', name: 'usu_uuid', nullable: true })
   usuUuid: string;
 
   @Column({ type: 'uuid', name: 'com_uuid' })
@@ -61,4 +69,10 @@ export class Transaccion {
     type: 'timestamp with time zone',
   })
   deletedAt: Date | null;
+
+  @JoinColumn([{ name: 'usu_uuid', referencedColumnName: 'usuUuid' }])
+  usuario: Usuario;
+
+  @JoinColumn([{ name: 'com_uuid', referencedColumnName: 'comUuid' }])
+  comerciante: Comerciante;
 }

@@ -3,8 +3,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
+import { Transaccion } from '../transaccion/transaccion.entity';
 
 @Entity('comerciante', { schema: 'public' })
 export class Comerciante {
@@ -40,4 +42,7 @@ export class Comerciante {
     type: 'timestamp with time zone',
   })
   deletedAt: Date | null;
+
+  @OneToMany(() => Transaccion, (transaccion) => transaccion.comUuid)
+  transacciones: Transaccion[];
 }

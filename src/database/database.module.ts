@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from '../modules/usuario/usuario.entity';
 import { Cuenta } from '../modules/cuenta/cuenta.entity';
 import { Comerciante } from '../modules/comerciante/comerciante.entity';
+import { Transaccion } from 'src/modules/transaccion/transaccion.entity';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { Comerciante } from '../modules/comerciante/comerciante.entity';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        entities: [Usuario, Cuenta, Comerciante],
+        entities: [Usuario, Cuenta, Comerciante, Transaccion],
         synchronize: true,
         logging: true,
         logger: 'advanced-console',

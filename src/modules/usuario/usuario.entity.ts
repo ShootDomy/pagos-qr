@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Cuenta } from '../cuenta/cuenta.entity';
+import { Transaccion } from '../transaccion/transaccion.entity';
 
 @Entity('usuario', { schema: 'public' })
 export class Usuario {
@@ -62,4 +63,7 @@ export class Usuario {
 
   @OneToMany(() => Cuenta, (cuenta) => cuenta.usuUuid)
   cuentas: Cuenta[];
+
+  @OneToMany(() => Transaccion, (transaccion) => transaccion.usuUuid)
+  transacciones: Transaccion[];
 }
