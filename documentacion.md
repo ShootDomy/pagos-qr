@@ -174,13 +174,26 @@ Este documento describe los flujos, endpoints, funciones principales y entidades
 
 El proyecto incluye configuración para despliegue y desarrollo con Docker:
 
-- **docker-compose.yml**: Define los servicios de backend (NestJS) y base de datos (PostgreSQL). - Para levantar los servicios ejecuta:
-  `bash
+`bash
 		docker-compose up --build
 		`
-- **Dockerfile**: Permite construir la imagen del backend NestJS. - Incluye etapas de build y producción.
 
 Variables de entorno se definen en el archivo `.env`.
+
+## Comandos Docker útiles
+
+A continuación se detallan los comandos principales para gestionar el entorno Docker del proyecto:
+
+- `docker-compose down -v`
+
+  > Detiene y elimina los contenedores, redes y volúmenes definidos en docker-compose. Útil para limpiar el entorno y eliminar los datos persistentes de la base de datos. **No elimina las imágenes construidas, solo los volúmenes y contenedores.**
+
+- `docker-compose up --build`
+
+  > Construye las imágenes leyendo el Dockerfile y docker-compose.yml, y despliega el aplicativo (backend y base de datos). Usa este comando para iniciar el sistema desde cero o después de cambios en el código fuente.
+
+- `docker-compose run --rm backend npm run seed`
+  > Ejecuta el script de seed en el contenedor backend para poblar la base de datos con datos iniciales (crea un cliente, comerciante, cuentas, etc.). Se recomienda ejecutarlo solo una vez, cuando la base de datos está vacía o recién creada.
 
 ## Pruebas con Jest
 
