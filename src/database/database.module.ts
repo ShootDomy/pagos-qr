@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Usuario } from '../modules/usuario/usuario.entity';
+import { Cuenta } from '../modules/cuenta/cuenta.entity';
+import { Comerciante } from '../modules/comerciante/comerciante.entity';
 
 @Module({
   imports: [
@@ -14,8 +17,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         username: config.get<string>('DB_USERNAME'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        autoLoadEntities: true,
-        synchronize: false,
+        entities: [Usuario, Cuenta, Comerciante],
+        synchronize: true,
         logging: true,
         logger: 'advanced-console',
       }),

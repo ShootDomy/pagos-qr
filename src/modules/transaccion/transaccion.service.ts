@@ -21,7 +21,6 @@ import { utilResponse } from '../../utils/utilResponse';
 import { FirebaseService } from '../firebase/firebase.service';
 import { enviarNotificacionDto } from '../firebase/dto/firebase.dto';
 import { ComercianteService } from '../comerciante/comerciante.service';
-// import * as crypto from 'crypto';
 
 @Injectable()
 export class TransaccionService {
@@ -364,26 +363,4 @@ export class TransaccionService {
       throw new HttpException(error, HttpStatus.BAD_REQUEST);
     }
   }
-
-  // private firmarPayload(payload: ITransaccionPayloadQr): string {
-  //   // Ordenar las propiedades para consistencia
-  //   const payloadOrdenado = this.ordenarYSerializar(payload);
-
-  //   const hmac = crypto.createHmac('sha256', this.QR_SECRET);
-  //   hmac.update(payloadOrdenado);
-
-  //   return hmac.digest('hex');
-  // }
-
-  // private ordenarYSerializar(payload: any): string {
-  //   // Ordenar alfabéticamente para consistencia
-  //   const ordered = Object.keys(payload)
-  //     .sort()
-  //     .reduce((obj, key) => {
-  //       obj[key] = payload[key];
-  //       return obj;
-  //     }, {});
-
-  //   return JSON.stringify(ordered);
-  // }
 }

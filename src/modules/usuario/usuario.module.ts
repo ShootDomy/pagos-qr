@@ -25,6 +25,6 @@ import { CuentaModule } from '../cuenta/cuenta.module';
     }),
     CuentaModule,
   ],
-  exports: [UsuarioService],
+  exports: [UsuarioService, TypeOrmModule],
 })
 export class UsuarioModule {}

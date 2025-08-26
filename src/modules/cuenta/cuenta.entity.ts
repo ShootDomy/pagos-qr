@@ -3,8 +3,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Usuario } from '../usuario/usuario.entity';
 
 @Entity('cuenta', { schema: 'public' })
 export class Cuenta {
@@ -58,4 +60,7 @@ export class Cuenta {
     type: 'timestamp with time zone',
   })
   deletedAt: Date | null;
+
+  @JoinColumn([{ name: 'usu_uuid', referencedColumnName: 'usuUuid' }])
+  usuario: Usuario;
 }

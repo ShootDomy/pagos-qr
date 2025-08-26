@@ -3,8 +3,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
+import { Cuenta } from '../cuenta/cuenta.entity';
 
 @Entity('usuario', { schema: 'public' })
 export class Usuario {
@@ -33,7 +35,7 @@ export class Usuario {
   @Column('boolean', { name: 'usu_activo', default: () => 'true' })
   usuActivo: boolean;
 
-  @Column({ type: 'uuid', name: 'com_uuid' })
+  @Column({ type: 'uuid', name: 'com_uuid', nullable: true })
   comUuid: string;
 
   @CreateDateColumn({
@@ -57,4 +59,7 @@ export class Usuario {
     type: 'timestamp with time zone',
   })
   deletedAt: Date | null;
+
+  @OneToMany(() => Cuenta, (cuenta) => cuenta.usuUuid)
+  cuentas: Cuenta[];
 }

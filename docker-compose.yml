@@ -10,7 +10,7 @@ services:
       - .env
     depends_on:
       - db
-    networks:
+    networks: 
       - nest-network
 
   db:

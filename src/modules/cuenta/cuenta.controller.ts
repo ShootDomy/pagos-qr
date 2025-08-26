@@ -1,8 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { CuentaService } from './cuenta.service';
 import { obtenerCuentaUsuarioDto } from './dto/cuenta.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('cuenta')
+@UseGuards(AuthGuard('jwt'))
 export class CuentaController {
   constructor(private readonly _cuentaService: CuentaService) {}
 
