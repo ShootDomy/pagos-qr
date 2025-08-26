@@ -30,16 +30,17 @@ export class ComercianteService {
 
   async obtenerComerciantesUuid(comUuid: string) {
     try {
-      const comerciante = await this._comercianteRepository
-        .createQueryBuilder('com')
-        .select(['com.comUuid', 'com.comNombre'])
-        .where('com.comUuid = :comUuid', { comUuid })
-        .getOne();
+      const comerciante = await this._comercianteRepository.query(`
+        SELECT com_uuid, com_nombre
+        FROM comerciante
+        WHERE com_uuid = '${comUuid}'
+          AND deleted_at IS NULL
+      `);
       return comerciante;
     } catch (error) {
       if (error.driverError) {
         throw new HttpException(
-          'Error al obtener los comerciantes',
+          'Error al obtener el comerciante',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
       }

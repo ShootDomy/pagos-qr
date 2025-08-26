@@ -133,7 +133,7 @@ export class TransaccionService {
         if (data.tokenUsuario) {
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
-            title: `Transacción número ${transaccion.tra_numero} no procesada`,
+            title: `Transacción no encontrada`,
             message: `No se ha encontrado la transacción`,
           };
           await this._firebaseService.enviarNotificacionPush(notificacion);
@@ -150,7 +150,10 @@ export class TransaccionService {
           transaccion.com_uuid,
         );
 
-      if (!comerciante) {
+      if (
+        !comerciante ||
+        (data.comUuid && data.comUuid !== transaccion.com_uuid)
+      ) {
         if (data.tokenUsuario) {
           const notificacion: enviarNotificacionDto = {
             token: data.tokenUsuario,
@@ -159,6 +162,7 @@ export class TransaccionService {
           };
           await this._firebaseService.enviarNotificacionPush(notificacion);
         }
+        console.log(`Comerciante no encontrado: ${transaccion.com_uuid}`);
 
         throw new HttpException(
           'Comerciante no encontrado',
@@ -274,8 +278,8 @@ export class TransaccionService {
       if (data.tokenUsuario) {
         const notificacion: enviarNotificacionDto = {
           token: data.tokenUsuario,
-          title: 'Transacción exitosa',
-          message: `La transacción ha sido procesada exitosamente`,
+          title: `Transacción número ${transaccion.tra_numero} exitosa`,
+          message: `La transacción de ${data.traAmount} ${transaccion.tra_currency} ha sido procesada exitosamente`,
         };
         await this._firebaseService.enviarNotificacionPush(notificacion);
       }
@@ -295,7 +299,7 @@ export class TransaccionService {
   async obtenerTransaccion(traUuid: string) {
     try {
       const transaccion = await this._transaccionRepository.query(`
-        SELECT tra_uuid, tra_amount, tra_currency, tra_metodo_pago, tra_estado, tra_qr, tra_numero
+        SELECT tra_uuid, tra_amount, tra_currency, tra_metodo_pago, tra_estado, tra_qr, tra_numero, com_uuid
         FROM transaccion
         WHERE tra_uuid = '${traUuid}'
           AND deleted_at ISNULL

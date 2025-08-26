@@ -32,6 +32,9 @@ export class procesarTransaccionDto {
 
   @IsOptional()
   tokenUsuario: string;
+
+  @IsOptional()
+  comUuid: string;
 }
 
 @Expose()
