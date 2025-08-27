@@ -1,0 +1,328 @@
+{
+	"info": {
+		"_postman_id": "bfbce4f4-65f4-4b5a-a1e4-b00479778b39",
+		"name": "PagosQR",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16857415"
+	},
+	"item": [
+		{
+			"name": "usuario",
+			"item": [
+				{
+					"name": "Registro usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuNombre\": \"Domenica\",\r\n    \"usuApellido\": \"Vintimilla\",\r\n    \"usuCorreo\": \"domenica@example.com\",\r\n    \"usuContrasena\": \"domy1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/usuario/auth/registro",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario",
+								"auth",
+								"registro"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Inicio Sesion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Capture token\", function() {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData.token)\r",
+									"    pm.environment.set(\"token\", jsonData.token);\r",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"usuCorreo\": \"domy@example.com\",\r\n    \"usuContrasena\": \"domy1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/usuario/auth/inicio",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario",
+								"auth",
+								"inicio"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "transaccion",
+			"item": [
+				{
+					"name": "Generar codigo qr",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"traAmount\": 154.01,\r\n    \"comUuid\": \"e642ea27-7f47-4c1c-ba71-6707b2a20721\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/transaccion/qr",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transaccion",
+								"qr"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refrescar estado",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"traAmount\": 20,\r\n    \"comUuid\": \"7f0cf323-a1bf-45eb-8f7a-714e354d4c2b\"\r\n}"
+						},
+						"url": {
+							"raw": "{{url}}/transaccion/estado",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transaccion",
+								"estado"
+							],
+							"query": [
+								{
+									"key": "traUuid",
+									"value": "d7ef1a0c-44da-4e17-9cf2-a80cc2cd5300",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Procesar transaccion",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"traUuid\": \"35b07459-5d13-4d69-ad73-e5505a8902d8\",\r\n    \"usuUuid\": \"51e408a6-309b-4953-9f0a-b9ea122f18a3\",\r\n    \"traMetodoPago\": \"WALLET\",\r\n    \"traAmount\": 12,\r\n    \"tokenUsuario\": \"emK5tgpkQTCehgGgMUHnv2:APA91bFRTl5HokeNEC1y98ZRB99XkcAb9IFPg4owDo-BnqAFVSxJR4rBUmz8OK0VUc_DtHt4c5TGzyZuviCutuLU4yrgjVZDk9yTS0juZMY4U3c4B2tihZs\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/transaccion/procesar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transaccion",
+								"procesar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Transccion comercio",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"traAmount\": 20,\r\n    \"comUuid\": \"7f0cf323-a1bf-45eb-8f7a-714e354d4c2b\"\r\n}"
+						},
+						"url": {
+							"raw": "{{url}}/transaccion/comercio?comUuid=7f0cf323-a1bf-45eb-8f7a-714e354d4c2b&cliente=do",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"transaccion",
+								"comercio"
+							],
+							"query": [
+								{
+									"key": "comUuid",
+									"value": "7f0cf323-a1bf-45eb-8f7a-714e354d4c2b"
+								},
+								{
+									"key": "cliente",
+									"value": "do"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "comerciante",
+			"item": [
+				{
+					"name": "Obtener comerciantes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/comerciante",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"comerciante"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "firebase",
+			"item": [
+				{
+					"name": "Enviar notificacion",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"emK5tgpkQTCehgGgMUHnv2:APA91bFRTl5HokeNEC1y98ZRB99XkcAb9IFPg4owDo-BnqAFVSxJR4rBUmz8OK0VUc_DtHt4c5TGzyZuviCutuLU4yrgjVZDk9yTS0juZMY4U3c4B2tihZs\",\r\n    \"title\": \"Transacción no procesada\",\r\n    \"message\": \"No se ha encontrado la transacción\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/firebase/enviar-notificacion",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"firebase",
+								"enviar-notificacion"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "cuenta",
+			"item": [
+				{
+					"name": "Obtener cuenta usuario",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/cuenta/usuario?usuUuid=51e408a6-309b-4953-9f0a-b9ea122f18a3",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cuenta",
+								"usuario"
+							],
+							"query": [
+								{
+									"key": "usuUuid",
+									"value": "51e408a6-309b-4953-9f0a-b9ea122f18a3"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

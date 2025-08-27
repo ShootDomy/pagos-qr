@@ -136,6 +136,14 @@ Este documento describe los flujos, endpoints, funciones principales y entidades
 
 ---
 
+## Colección Postman
+
+Puedes descargar la colección de Postman para probar la API desde el siguiente enlace:
+
+[Descargar colección Postman](src/postman/PagosQR.postman_collection.json)
+
+---
+
 ## Middleware
 
 - **LoggerMiddleware**: Registra en consola cada petición HTTP con método, URL y tiempo de respuesta.
