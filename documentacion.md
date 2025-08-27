@@ -146,7 +146,12 @@ Puedes descargar la colección de Postman para probar la API desde el siguiente 
 
 ## Middleware
 
+### Middlewares implementados
+
 - **LoggerMiddleware**: Registra en consola cada petición HTTP con método, URL y tiempo de respuesta.
+- **HelmetMiddleware**: Protege la aplicación añadiendo cabeceras de seguridad HTTP estándar.
+- **RateLimitMiddleware**: Limita la cantidad de peticiones por IP en un periodo de tiempo para evitar abusos.
+- **CorsMiddleware**: Permite solicitudes desde otros dominios (Cross-Origin Resource Sharing), útil para APIs públicas.
 
 ---
 
